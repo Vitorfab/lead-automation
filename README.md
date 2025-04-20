@@ -73,7 +73,7 @@ ou
 **Custom JavaScript Function** (continents classification logic)
 
 ## 📸 workflow preview
-![Workflow preview](./Workflow-automation)
+![Workflow preview](./Workflow-automation.png)
 
 
 ## 👉 How to use this project
