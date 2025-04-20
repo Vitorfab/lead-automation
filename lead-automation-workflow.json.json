@@ -1,0 +1,1075 @@
+{
+  "name": "formulário VAbroad Mentoring",
+  "nodes": [
+    {
+      "parameters": {
+        "errorMessage": "Algum campo foi preenchido incorretamente ou não foi preenchido!!!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        120
+      ],
+      "id": "39a650d5-b462-46e7-bb2e-57d7e19625b6",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "chatId": "6678178271",
+        "text": "=Você recebeu um novo lead no google sheets.  {{ $('Webhook - Receber dados').item.json.query.nome }} com o email {{ $('Webhook - Receber dados').item.json.query.email }} quer ir para {{ $('Webhook - Receber dados').item.json.query.pais }} com interesse em {{ $('Switch - Interesse').item.json.interesse }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        -60
+      ],
+      "id": "b65f9549-6eaa-4a47-bd5e-b827d2ee1bec",
+      "name": "Notificação interna",
+      "webhookId": "f9de41c0-d44c-4728-9654-3869c12bd806",
+      "credentials": {
+        "telegramApi": {
+          "id": "EWhXC7rRWe0w7qs5",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8cb0e0b3-c922-40a5-982c-8ad0fe3351a2",
+              "name": "nome",
+              "value": "={{ $json.query.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "96a32e1e-4fa2-4ee4-8bdd-521bad7335ac",
+              "name": "email",
+              "value": "={{ $json.query.email }}",
+              "type": "string"
+            },
+            {
+              "id": "27e13300-f4d8-4b04-a076-a401cdcc7b44",
+              "name": "pais",
+              "value": "={{ $json.query.pais }}",
+              "type": "string"
+            },
+            {
+              "id": "d08ea0c0-e522-4bb1-92dc-ef0ef7f30ed2",
+              "name": "interesse",
+              "value": "={{ $json.query.interesse }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -660,
+        -60
+      ],
+      "id": "f51ac872-6340-40f4-9b29-3ab69dd9774b",
+      "name": "Filtrar dados- Obrigatórios"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Captura os dados do nó \"Validar dados\"\nconst dados = $items(\"Validação - Campos obrigatórios\")[0].json;\n\n// Debug opcional (pode remover depois)\nconsole.log(dados);\n\nconst paisRaw = dados.pais;\n\nif (!paisRaw || paisRaw.trim() === \"\") {\n  throw new Error(\"Campo 'pais' não foi encontrado ou está vazio.\");\n}\n\nconst pais = paisRaw.toLowerCase().trim();\n\nconst paisesEuropa = [\n  \"portugal\", \"espanha\", \"frança\", \"alemanha\", \"italia\", \"holanda\",\n  \"bélgica\", \"belgica\", \"suíça\", \"suica\"\n];\n\nconst paisesAsia = [\n  \"china\", \"japao\", \"japão\", \"coreia do sul\", \"india\", \"tailandia\", \"hongkong\"\n];\n\nlet continente;\n\nif (paisesEuropa.includes(pais)) {\n  continente = \"europa\";\n} else if (paisesAsia.includes(pais)) {\n  continente = \"asia\";\n} else {\n  continente = \"outro\";\n}\n\n// Retorna os dados originais + continente + país formatado\nreturn [\n  {\n    json: {\n      ...dados,\n      continente,\n      paisFormatado: pais\n    }\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        -60
+      ],
+      "id": "8ac28a25-3e84-4288-a375-8b80bc6e3764",
+      "name": "Filtrar países"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Switch - Países').item.json.interesse }}",
+                    "rightValue": "intercambio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "96061b39-25da-4f0b-82d4-0ff8e7fac928"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "98d4a4a9-3671-4114-86ef-b03d700f229e",
+                    "leftValue": "={{ $('Switch - Países').item.json.interesse }}",
+                    "rightValue": "graduaçao",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "52a96a6d-a44e-4912-956d-e0b2148470e8",
+                    "leftValue": "={{ $('Switch - Países').item.json.interesse }}",
+                    "rightValue": "pós",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        420,
+        -60
+      ],
+      "id": "ffa07b24-9914-49bd-be7d-d8d220beef67",
+      "name": "Switch - Interesse"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.continente }}",
+                    "rightValue": "=europa",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c2a1f2de-cc7c-4142-9a2b-950bc0956380"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "15882f5d-3ef5-48f8-82fe-036ababd9c1d",
+                    "leftValue": "={{ $json.continente }}",
+                    "rightValue": "asia",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "487b0bcc-53df-4b9e-9072-0aa7d8ee07fc",
+                    "leftValue": "={{ $json.continente }}",
+                    "rightValue": "outro",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -20,
+        -60
+      ],
+      "id": "41157438-658e-487d-a7da-5af8baaea4e5",
+      "name": "Switch - Países"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0",
+          "mode": "list",
+          "cachedResultName": "Formulário VAbroad",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 600251741,
+          "mode": "list",
+          "cachedResultName": "Europe",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit#gid=600251741"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('Filtrar dados- Obrigatórios').item.json.nome }}",
+            "email": "={{ $('Filtrar dados- Obrigatórios').item.json.email }}",
+            "pais": "={{ $('Filtrar dados- Obrigatórios').item.json.pais }}",
+            "data": "={{ $('Filtrar dados - Data').item.json['data de envio'] }}",
+            "interesse": "={{ $json.interesse }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pais",
+              "displayName": "pais",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interesse",
+              "displayName": "interesse",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        -240
+      ],
+      "id": "a23c04cc-b810-4365-a43a-c34697c19c4e",
+      "name": "Google Sheets - Europa",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dd8PZXuTuvK4RwYy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0",
+          "mode": "list",
+          "cachedResultName": "Formulário VAbroad",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 183020781,
+          "mode": "list",
+          "cachedResultName": "Asia",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit#gid=183020781"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('Filtrar dados- Obrigatórios').item.json.nome }}",
+            "email": "={{ $('Filtrar dados- Obrigatórios').item.json.email }}",
+            "pais": "={{ $('Filtrar dados- Obrigatórios').item.json.pais }}",
+            "data": "={{ $('Filtrar dados - Data').item.json['data de envio'] }}",
+            "interesse": "={{ $json.interesse }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pais",
+              "displayName": "pais",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interesse",
+              "displayName": "interesse",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        -60
+      ],
+      "id": "03b34156-aaf3-423e-b5e9-3fb451e8828c",
+      "name": "Google Sheets - Asia",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dd8PZXuTuvK4RwYy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0",
+          "mode": "list",
+          "cachedResultName": "Formulário VAbroad",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 285183633,
+          "mode": "list",
+          "cachedResultName": "Others",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FEqLYo-PcA9TIOYtIaiNivZn-qFl1pevWNODk7tduK0/edit#gid=285183633"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nome": "={{ $('Filtrar países').item.json.nome }}",
+            "email": "={{ $('Filtrar países').item.json.email }}",
+            "pais": "={{ $('Filtrar países').item.json.paisFormatado }}",
+            "data": "={{ $('Filtrar dados - Data').item.json['data de envio'] }}",
+            "interesse": "={{ $json.interesse }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pais",
+              "displayName": "pais",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interesse",
+              "displayName": "interesse",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        120
+      ],
+      "id": "d9021201-e621-4d4e-a9f7-59784b36d586",
+      "name": "Google Sheets - Outro continente",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dd8PZXuTuvK4RwYy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=VAbroad Mentoring",
+        "message": "=Seu formulário foi recebido com sucesso {{ $json.nome }}, agora vamos analisar seu interesse em {{ $('Switch - Países').item.json.interesse }} e entraremos em contato logo mais. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -240
+      ],
+      "id": "dd701bf0-8337-4e71-ad92-772db2d648ac",
+      "name": "Enviar email - Lead intercamio",
+      "webhookId": "c09837be-35bc-4028-92af-4f7e4e3f4596",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dAKx3ztTALgAxVHK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=VAbroad Mentoring",
+        "message": "=Seu formulário foi recebido com sucesso {{ $json.nome }}, agora vamos analisar seu interesse em {{ $('Switch - Países').item.json.interesse }} e entraremos em contato logo mais. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -60
+      ],
+      "id": "ff481668-7d96-43c6-a33d-d6b4a625cd44",
+      "name": "Enviar email - Lead graduaçao",
+      "webhookId": "c09837be-35bc-4028-92af-4f7e4e3f4596",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dAKx3ztTALgAxVHK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=VAbroad Mentoring",
+        "message": "=Seu formulário foi recebido com sucesso {{ $json.nome }}, agora vamos analisar seu interesse em {{ $('Switch - Países').item.json.interesse }} e entraremos em contato logo mais. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        140
+      ],
+      "id": "3a3ad9c9-6d54-46ba-8793-3097cd5d5d16",
+      "name": "Enviar email - Lead pós",
+      "webhookId": "c09837be-35bc-4028-92af-4f7e4e3f4596",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dAKx3ztTALgAxVHK",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -60
+      ],
+      "id": "d9a99180-ea58-4a26-b679-eedfc447aec7",
+      "name": "Fim da operação"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd749107-8f23-479d-91a2-8dda4388646d",
+              "name": "data de envio",
+              "value": "={{ $today }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -340,
+        -60
+      ],
+      "id": "00ee9d4a-4f54-4a6a-80c0-978632bb1317",
+      "name": "Filtrar dados - Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "79c27283-df9a-41c8-9d6c-f4802b5dcb37",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "4a791910-eb63-4cbc-96f9-04d573a60924",
+              "leftValue": "={{ $json.nome }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "93861694-5257-43d7-970e-3f3aa030fb97",
+              "leftValue": "={{ $json.pais }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b3e6fc88-75e5-4e56-9cec-900bc4fc8cd2",
+              "leftValue": "={{ $json.interesse }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "681b4a0b-aa07-460a-a7c9-f5a946c9c0f0",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -500,
+        -60
+      ],
+      "id": "c8e393c0-c1a2-4da0-a545-43337ee15b90",
+      "name": "Validação - Campos obrigatórios"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Formulário-VAbroad",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        -60
+      ],
+      "id": "a34ffd8a-51ac-420f-af97-159b65b20d99",
+      "name": "Webhook - Receber dados",
+      "webhookId": "d1370e49-ce50-464f-930f-09ea2f0b700d"
+    },
+    {
+      "parameters": {
+        "content": "Responsável por filtrar países por continentes.",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -140
+      ],
+      "id": "c7e53c32-3228-4e99-bc13-77004413a7c3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Resonsável por enviar para cada planilha de acordo com o continente do país.",
+        "height": 120,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -180
+      ],
+      "id": "38b49b19-712a-4d8d-aa26-1875224f6a1e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Diversifica a mensagem enviada via gmail de acordo com o interesse do lead.",
+        "height": 100,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -160
+      ],
+      "id": "58335ce6-1eed-4d0d-baf2-0b6ba087a92b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Enviar uma notificação interna por alguma via (usei telegram nesse case) apenas dizendo que tem um novo lead no google sheets e indicando em qual planilha está.",
+        "height": 200,
+        "width": 160,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -260
+      ],
+      "id": "4dd51563-c8a8-4e18-93b9-ba8b770f782f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Recebe os dados do formulário.",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        -140
+      ],
+      "id": "d7517063-6249-4ca1-b4ef-a87c2fa63fc3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Filtra os dados mais importantes",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        -140
+      ],
+      "id": "678a269d-600f-4ba2-bd4b-27163d63cd76",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Filtra apenas a data",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        -140
+      ],
+      "id": "cfbb8890-a952-4528-a07d-0af99d2321cc",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "Se os campos foram preenchidos corretamente o fluxo continua, se não ele para.",
+        "height": 120,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        -180
+      ],
+      "id": "3b264931-141c-469c-b3e1-3679df32460d",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Notificação interna": {
+      "main": [
+        [
+          {
+            "node": "Fim da operação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar dados- Obrigatórios": {
+      "main": [
+        [
+          {
+            "node": "Validação - Campos obrigatórios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar países": {
+      "main": [
+        [
+          {
+            "node": "Switch - Países",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Interesse": {
+      "main": [
+        [
+          {
+            "node": "Enviar email - Lead intercamio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar email - Lead graduaçao",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar email - Lead pós",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Países": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Europa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - Asia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - Outro continente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        []
+      ]
+    },
+    "Google Sheets - Europa": {
+      "main": [
+        [
+          {
+            "node": "Switch - Interesse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Asia": {
+      "main": [
+        [
+          {
+            "node": "Switch - Interesse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Outro continente": {
+      "main": [
+        [
+          {
+            "node": "Switch - Interesse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar email - Lead intercamio": {
+      "main": [
+        [
+          {
+            "node": "Notificação interna",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar email - Lead graduaçao": {
+      "main": [
+        [
+          {
+            "node": "Notificação interna",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar email - Lead pós": {
+      "main": [
+        [
+          {
+            "node": "Notificação interna",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar dados - Data": {
+      "main": [
+        [
+          {
+            "node": "Filtrar países",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validação - Campos obrigatórios": {
+      "main": [
+        [
+          {
+            "node": "Filtrar dados - Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Receber dados": {
+      "main": [
+        [
+          {
+            "node": "Filtrar dados- Obrigatórios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7da55d0c-4cd1-47cc-943f-70196324bec6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fae284696fcaa56bec328a0b34eb27359952a786b9a8beed759c579c9b93acdb"
+  },
+  "id": "mIovEGBuEsRmqVyF",
+  "tags": []
+}
